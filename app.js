@@ -1,3 +1,5 @@
+//jshint esversion:6
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -50,34 +52,37 @@ const boxing = new Item({
 
 const defaultItems = [run, swim, boxing];
 
-/* Item.insertMany(defaultItems, function(err) {
-    if (err) {
-        console.log(err);
-    } else {
-        console.log("Successfully saved all new items.");
-    }
-}); */
-
 
 app.get("/", function(req, res) {
 
     Item.find({}, function(err, foundItems) {
-        res.render("list", { listTitle: "Today", newListItem: foundItems });
+        if (foundItems.length === 0) {
+            Item.insertMany(defaultItems, function(err) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("Successfully saved all new items.");
+                }
+            });
+            res.redirect("/");
+        } else {
+            res.render("list", { listTitle: "Today", newListItem: foundItems });
+        }
     });
-
 });
 
 app.post("/", function(req, res) {
 
-    let item = req.body.newItem;
+    const itemName = req.body.newItem;
 
-    if (req.body.list === "Work") {
-        workItems.push(item);
-        res.redirect("/work");
-    } else {
-        items.push(item);
-        res.redirect("/");
-    }
+    const item = new Item({
+        name: itemName
+    });
+
+    item.save();
+
+    res.redirect("/");
+
 });
 
 app.get("/work", function(req, res) {
