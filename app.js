@@ -71,6 +71,10 @@ app.get("/", function(req, res) {
     });
 });
 
+app.get("/:customListName", function(req, res) {
+
+});
+
 app.post("/", function(req, res) {
 
     const itemName = req.body.newItem;
@@ -83,6 +87,17 @@ app.post("/", function(req, res) {
 
     res.redirect("/");
 
+});
+
+app.post("/delete", function(req, res) {
+    const checkedItemId = req.body.checkbox;
+
+    Item.findByIdAndRemove(checkedItemId, function(err) {
+        if (!err) {
+            console.log("Successfully delete item.");
+        }
+    });
+    res.redirect("/");
 });
 
 app.get("/work", function(req, res) {
