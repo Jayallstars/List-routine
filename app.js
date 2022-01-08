@@ -52,6 +52,13 @@ const boxing = new Item({
 
 const defaultItems = [run, swim, boxing];
 
+const listSchema = {
+    name: String,
+    items: [itemSchema]
+};
+
+const List = mongoose.model("List", listSchema);
+
 
 app.get("/", function(req, res) {
 
@@ -72,20 +79,44 @@ app.get("/", function(req, res) {
 });
 
 app.get("/:customListName", function(req, res) {
+    const customListName = req.params.customListName;
 
+    List.findOne({ name: customListName }, function(err, foundList) {
+        if (!err) {
+            if (!foundList) {
+                const list = new List({
+                    name: customListName,
+                    items: defaultItems
+                });
+                list.save();
+                res.redirect("/" + customListName);
+            } else {
+                res.render("List", { listTitle: foundList.name, newListItem: foundList.items });
+            }
+        }
+    });
 });
 
 app.post("/", function(req, res) {
 
     const itemName = req.body.newItem;
+    const listName = req.body.list;
 
     const item = new Item({
         name: itemName
     });
 
-    item.save();
+    if (listName === "Today") {
+        item.save();
+        res.redirect("/");
+    } else {
+        List.findOne({ name: listName }, function(err, foundList) {
+            foundList.items.push(item);
+            foundList.save();
+            res.redirect("/" + listName);
+        });
+    }
 
-    res.redirect("/");
 
 });
 
@@ -100,9 +131,9 @@ app.post("/delete", function(req, res) {
     res.redirect("/");
 });
 
-app.get("/work", function(req, res) {
+/* app.get("/work", function(req, res) {
     res.render("list", { listTitle: "Work List", newListItem: workItems });
-});
+}); */
 
 app.listen(3000, function() {
     console.log("Server is running on port 3000");
