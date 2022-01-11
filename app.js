@@ -6,17 +6,12 @@ const mongoose = require("mongoose");
 
 const app = express();
 
-/* const items = ["ABC", "DEF", "CCC"];
-const workItems = [];
- */
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 app.set("view engine", "ejs");
 
 mongoose.connect("mongodb://localhost:27017/todolistDB", { useNewUrlParser: true });
-
-/* 1 field name: string */
 
 const itemSchema = new mongoose.Schema({
     name: {
@@ -130,10 +125,6 @@ app.post("/delete", function(req, res) {
     });
     res.redirect("/");
 });
-
-/* app.get("/work", function(req, res) {
-    res.render("list", { listTitle: "Work List", newListItem: workItems });
-}); */
 
 app.listen(3000, function() {
     console.log("Server is running on port 3000");
